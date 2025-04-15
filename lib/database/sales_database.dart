@@ -22,7 +22,9 @@ class SalesDatabase {
     return openDatabase(
       path,
       version: VERSIONDB,
-      onCreate: (db, version) {
+      onCreate: (db, version) async {
+        await db.execute('PRAGMA foreign_keys = ON;');
+
         String query = '''
         
 create table category(
@@ -64,6 +66,9 @@ create table order_detail(
 
         ''';
         db.execute(query);
+      },
+      onOpen: (db) async {
+        await db.execute('PRAGMA foreign_keys = ON;');
       },
     );
   }
