@@ -29,7 +29,8 @@ class SalesDatabase {
         
 create table category(
     category_id integer primary key,
-    category varchar(50)
+    category varchar(50),
+    image blob
 );
 
 create table state(
@@ -42,7 +43,7 @@ create table product(
     product varchar(50),
     description varchar(250),
     price real,
-    image varchar(100),
+    image blob,
     category_id integer,
     foreign key (category_id) references category(category_id) on delete set null
 );
@@ -103,16 +104,20 @@ create table order_detail(
   }
   */
 
-  Future<List<Map<String, dynamic>>> select(String table) async {
+  Future<List<T>> select<T>(
+    String table,
+    T Function(Map<String, dynamic>) fromMap,
+  ) async {
     final con = await database;
-    return await con!.query(table);
+    final result = await con!.query(table);
+    return result.map((item) => fromMap(item)).toList();
   }
 
   /*
   Future<List<TodoModel>> SELECT() async {
     final con = await database;
     var result = await con!.query('todo');
-    return result.map((task) => TodoModel.fromMap(task)).toList(); //Aplicamos esto al recibirlo
+    return result.map((task) => TodoModel.fromMap(task)).toList(); 
   }
 
   Future<List<Map<String, dynamic>>> queryAll(String table) async {
