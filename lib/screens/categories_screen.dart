@@ -1,7 +1,14 @@
+import 'dart:io';
+
 import 'package:art_sweetalert/art_sweetalert.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:pmsn_2025_p3/database/sales_database.dart';
 import 'package:pmsn_2025_p3/models/category_model.dart';
+import 'package:pmsn_2025_p3/utils/global_values.dart';
+
+import 'package:path/path.dart' as path;
 
 class CategoriesScreen extends StatefulWidget {
   const CategoriesScreen({super.key});
@@ -13,7 +20,6 @@ class CategoriesScreen extends StatefulWidget {
 class _CategoriesScreenState extends State<CategoriesScreen> {
   SalesDatabase? database;
 
-  @override
   @override
   void initState() {
     super.initState();
@@ -57,7 +63,9 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
               },
             );
           } else {
-            return Center(child: Text('No categories has been found'));
+            return Center(
+              child: CircularProgressIndicator(),
+            );
           }
         },
       ),
@@ -68,18 +76,85 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     return Card(
       elevation: 3,
       margin: EdgeInsets.all(8),
-      child: Center(
-        child: Text(
-          category.category ?? 'Sin nombre',
-          style: TextStyle(fontSize: 18),
-          textAlign: TextAlign.center,
-        ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          if (category.image != null && category.image!.isNotEmpty)
+            CircleAvatar(
+              radius: 30,
+              backgroundImage: FileImage(File(category.image!)),
+            )
+          else
+            CircleAvatar(
+              radius: 30,
+              child: Icon(Icons.category),
+            ),
+          SizedBox(height: 10),
+          Text(
+            category.category ?? 'Sin nombre',
+            style: TextStyle(fontSize: 18),
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(height: 10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              IconButton(
+                icon: Icon(Icons.edit, color: Colors.lightBlueAccent),
+                onPressed: () {
+                  _categoryDialogBuilder(
+                      context, category.categoryId ?? 0, category);
+                },
+              ),
+              IconButton(
+                icon: Icon(Icons.delete, color: Colors.red),
+                onPressed: () async {
+                  final confirm = await ArtSweetAlert.show(
+                    context: context,
+                    artDialogArgs: ArtDialogArgs(
+                      type: ArtSweetAlertType.warning,
+                      title: "¿Estás seguro?",
+                      text: "Esta acción eliminará la categoría",
+                      showCancelBtn: true,
+                    ),
+                  );
+
+                  if (confirm?.isTapConfirmButton ?? false) {
+                    await database!.delete(
+                      'category',
+                      'category_id',
+                      category.categoryId!,
+                    );
+                    setState(() {});
+                    ArtSweetAlert.show(
+                      context: context,
+                      artDialogArgs: ArtDialogArgs(
+                        type: ArtSweetAlertType.success,
+                        title: 'Eliminado',
+                        text: 'Categoría eliminada correctamente',
+                      ),
+                    );
+                  }
+                },
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
 
-  Future<void> _categoryDialogBuilder(BuildContext context, [int id = 0]) {
-    TextEditingController conCategory = TextEditingController();
+  Future<void> _categoryDialogBuilder(BuildContext context,
+      [int id = 0, CategoryModel? category]) {
+    GlobalValues.userImage.value = null;
+
+    TextEditingController conCategory = TextEditingController(
+      text: category?.category ?? '',
+    );
+
+    if (category?.image != null && category!.image!.isNotEmpty) {
+      GlobalValues.userImage.value = File(category.image!);
+    }
 
     return showDialog(
       context: context,
@@ -87,7 +162,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
         return AlertDialog(
           title: Text(id == 0 ? 'Agregar categoría' : 'Editar categoría'),
           content: Container(
-            height: 200,
+            height: 250,
             width: 300,
             child: ListView(
               shrinkWrap: true,
@@ -99,19 +174,42 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                   ),
                 ),
                 SizedBox(height: 20),
+                GestureDetector(
+                  onTap: _showImagePickerOptions,
+                  child: CircleAvatar(
+                      radius: 40,
+                      backgroundColor: Colors.grey[300],
+                      child: ValueListenableBuilder<File?>(
+                        valueListenable: GlobalValues.userImage,
+                        builder: (context, value, child) {
+                          return CircleAvatar(
+                            radius: 40,
+                            backgroundColor: Colors.grey[300],
+                            backgroundImage:
+                                value == null ? null : FileImage(value),
+                            child: value == null
+                                ? Icon(Icons.camera_alt,
+                                    size: 40, color: Colors.grey[600])
+                                : null,
+                          );
+                        },
+                      )),
+                ),
+                SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: () {
                     if (conCategory.text.isNotEmpty) {
                       if (id == 0) {
+                        // INSERTAR NUEVA CATEGORÍA
                         database!.insert('category', {
                           'category': conCategory.text,
-                          'image': null, // o algún valor por defecto
+                          'image': GlobalValues.userImage.value?.path ?? '',
                         }).then((value) {
                           if (value > 0) {
-                            setState(() {
-                              // refrescar pantalla
-                            });
+                            GlobalValues.userImage.value = null;
+                            setState(() {});
                             Navigator.pop(context);
+
                             ArtSweetAlert.show(
                               context: context,
                               artDialogArgs: ArtDialogArgs(
@@ -123,17 +221,20 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                           }
                         });
                       } else {
+                        // ACTUALIZAR CATEGORÍA EXISTENTE
                         database!
                             .update(
-                                'category',
-                                {
-                                  'category_id': id,
-                                  'category': conCategory.text,
-                                  'image': null,
-                                },
-                                'category_id')
+                          'category',
+                          {
+                            'category_id': id,
+                            'category': conCategory.text,
+                            'image': GlobalValues.userImage.value?.path ?? '',
+                          },
+                          'category_id',
+                        )
                             .then((value) {
                           if (value > 0) {
+                            GlobalValues.userImage.value = null;
                             setState(() {});
                             Navigator.pop(context);
                             ArtSweetAlert.show(
@@ -157,5 +258,50 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
         );
       },
     );
+  }
+
+  void _showImagePickerOptions() {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: Icon(Icons.photo_library),
+              title: Text('Galería'),
+              onTap: () {
+                _pickImageFromSource(ImageSource.gallery);
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.camera),
+              title: Text('Cámara'),
+              onTap: () {
+                _pickImageFromSource(ImageSource.camera);
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _pickImageFromSource(ImageSource source) async {
+    final pickedFile = await ImagePicker().pickImage(source: source);
+
+    if (pickedFile != null) {
+      final directory = await getApplicationDocumentsDirectory();
+
+      final filename =
+          'img_${DateTime.now().millisecondsSinceEpoch}${path.extension(pickedFile.path)}';
+
+      final savedImage =
+          await File(pickedFile.path).copy('${directory.path}/$filename');
+
+      GlobalValues.userImage.value = savedImage;
+    }
   }
 }

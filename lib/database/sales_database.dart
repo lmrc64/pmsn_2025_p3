@@ -25,29 +25,31 @@ class SalesDatabase {
       onCreate: (db, version) async {
         await db.execute('PRAGMA foreign_keys = ON;');
 
-        String query = '''
-        
+        db.execute('''
 create table category(
     category_id integer primary key,
     category varchar(50),
-    image blob
+    image text
 );
-
+''');
+        db.execute('''
 create table state(
     state_id integer primary key,
     state varchar(20)
 );
-
+''');
+        db.execute('''
 create table product(
     product_id integer primary key,
     product varchar(50),
     description varchar(250),
     price real,
-    image blob,
+    image text,
     category_id integer,
     foreign key (category_id) references category(category_id) on delete set null
 );
-
+''');
+        db.execute('''
 create table 'order'(
     order_id integer primary key,
     date varchar(10),
@@ -55,7 +57,8 @@ create table 'order'(
     state_id integer,
     foreign key (state_id) references state(state_id) on delete restrict
 );
-
+''');
+        db.execute('''
 create table order_detail(
     order_detail_id integer primary key,
     order_id integer not null,
@@ -64,9 +67,7 @@ create table order_detail(
     foreign key (order_id) references 'order'(order_id) on delete cascade,
     foreign key (product_id) references product(product_id) on delete restrict
 );
-
-        ''';
-        db.execute(query);
+''');
       },
       onOpen: (db) async {
         await db.execute('PRAGMA foreign_keys = ON;');
@@ -124,5 +125,11 @@ create table order_detail(
     final db = await database;
     return await db!.query(table);
   }
-  */
+  
+  Future<void> checkProductTable() async {
+    final db = await database;
+    var tables =
+        await db?.rawQuery('SELECT name FROM sqlite_master WHERE type="table"');
+    print(tables); 
+  }*/
 }
