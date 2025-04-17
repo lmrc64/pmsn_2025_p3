@@ -12,7 +12,9 @@ import 'package:pmsn_2025_p3/utils/global_values.dart';
 import 'package:path/path.dart' as path;
 
 class ProductsScreen extends StatefulWidget {
-  const ProductsScreen({super.key});
+  final int? categoryId;
+
+  const ProductsScreen({super.key, this.categoryId});
 
   @override
   State<ProductsScreen> createState() => _ProductsScreenState();
@@ -43,7 +45,14 @@ class _ProductsScreenState extends State<ProductsScreen> {
         ),
       ),
       body: FutureBuilder(
-        future: database!.select<ProductModel>('product', ProductModel.fromMap),
+        future: widget.categoryId != null
+            ? database!.selectByColumn<ProductModel>(
+                'product',
+                'category_id',
+                widget.categoryId!,
+                ProductModel.fromMap,
+              )
+            : database!.select<ProductModel>('product', ProductModel.fromMap),
         builder: (context, AsyncSnapshot<List<ProductModel>> snapshot) {
           if (snapshot.hasError) {
             return Center(
@@ -74,7 +83,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
 
   Widget ItemProduct(ProductModel product) {
     return Card(
-      elevation: 3,
+      elevation: 4,
       margin: EdgeInsets.all(8),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -89,7 +98,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
               radius: 30,
               child: Icon(Icons.image),
             ),
-          SizedBox(height: 10),
+          SizedBox(height: 5),
           Text(
             product.product ?? 'Producto sin nombre',
             style: TextStyle(fontSize: 18),
@@ -100,13 +109,14 @@ class _ProductsScreenState extends State<ProductsScreen> {
             '\$${product.price?.toStringAsFixed(2) ?? '0.00'}',
             style: TextStyle(fontSize: 16, color: Colors.green),
           ),
-          SizedBox(height: 10),
+          SizedBox(height: 5),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               IconButton(
                 icon: Icon(Icons.edit, color: Colors.lightBlueAccent),
                 onPressed: () {
+                  //print(product.categoryId);
                   _productDialogBuilder(
                     context,
                     product.productId ?? 0,
@@ -203,7 +213,10 @@ class _ProductsScreenState extends State<ProductsScreen> {
                   ),
                   SizedBox(height: 10),
                   DropdownButtonFormField<int>(
-                    value: selectedCategoryId,
+                    value: categories
+                            .any((cat) => cat.categoryId == selectedCategoryId)
+                        ? selectedCategoryId
+                        : null,
                     items: categories.map((cat) {
                       return DropdownMenuItem<int>(
                         value: cat.categoryId,

@@ -85,25 +85,10 @@ create table order_detail(
     return con!.update(table, map, where: '$key = ?', whereArgs: [map[key]]);
   }
 
-  /*
-  Future<int> update(String table, Map<String, dynamic> data, String key,
-      dynamic value) async {
-    final db = await database;
-    return await db!.update(table, data, where: '$key = ?', whereArgs: [value]);
-  }
-  */
-
   Future<int> delete(String table, String key, int id) async {
     final con = await database;
     return con!.delete(table, where: '$key = ?', whereArgs: [id]);
   }
-
-  /*
-  Future<int> delete(String table, String key, dynamic value) async {
-    final db = await database;
-    return await db!.delete(table, where: '$key = ?', whereArgs: [value]);
-  }
-  */
 
   Future<List<T>> select<T>(
     String table,
@@ -114,22 +99,18 @@ create table order_detail(
     return result.map((item) => fromMap(item)).toList();
   }
 
-  /*
-  Future<List<TodoModel>> SELECT() async {
+  Future<List<T>> selectByColumn<T>(
+    String table,
+    String column,
+    dynamic value,
+    T Function(Map<String, dynamic>) fromMap,
+  ) async {
     final con = await database;
-    var result = await con!.query('todo');
-    return result.map((task) => TodoModel.fromMap(task)).toList(); 
+    final result = await con!.query(
+      table,
+      where: '$column = ?',
+      whereArgs: [value],
+    );
+    return result.map((item) => fromMap(item)).toList();
   }
-
-  Future<List<Map<String, dynamic>>> queryAll(String table) async {
-    final db = await database;
-    return await db!.query(table);
-  }
-  
-  Future<void> checkProductTable() async {
-    final db = await database;
-    var tables =
-        await db?.rawQuery('SELECT name FROM sqlite_master WHERE type="table"');
-    print(tables); 
-  }*/
 }

@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pmsn_2025_p3/database/sales_database.dart';
 import 'package:pmsn_2025_p3/models/category_model.dart';
+import 'package:pmsn_2025_p3/screens/products_screen.dart';
 import 'package:pmsn_2025_p3/utils/global_values.dart';
 
 import 'package:path/path.dart' as path;
@@ -79,16 +80,28 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          if (category.image != null && category.image!.isNotEmpty)
-            CircleAvatar(
-              radius: 30,
-              backgroundImage: FileImage(File(category.image!)),
-            )
-          else
-            CircleAvatar(
-              radius: 30,
-              child: Icon(Icons.category),
-            ),
+          GestureDetector(
+            onTap: () {
+              // Aquí puedes navegar o mostrar productos filtrados por categoría
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ProductsScreen(
+                    categoryId: category.categoryId!,
+                  ),
+                ),
+              );
+            },
+            child: category.image != null && category.image!.isNotEmpty
+                ? CircleAvatar(
+                    radius: 30,
+                    backgroundImage: FileImage(File(category.image!)),
+                  )
+                : CircleAvatar(
+                    radius: 30,
+                    child: Icon(Icons.category),
+                  ),
+          ),
           SizedBox(height: 10),
           Text(
             category.category ?? 'Sin nombre',
