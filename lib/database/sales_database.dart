@@ -68,6 +68,43 @@ create table order_detail(
     foreign key (product_id) references product(product_id) on delete restrict
 );
 ''');
+        await db.execute("""
+  INSERT INTO category (category, image)
+  VALUES ('Electrónica', NULL),
+         ('Ropa', NULL);
+""");
+
+        await db.execute("""
+  INSERT INTO state (state)
+  VALUES ('Por cumplir'),
+         ('Cancelado'),
+         ('Completado');
+""");
+
+        await db.execute("""
+  INSERT INTO product (product, description, price, image, category_id)
+  VALUES
+    ('Smartphone', 'Teléfono inteligente con pantalla AMOLED', 699.99, NULL, 1),
+    ('Laptop', 'Laptop con procesador Intel i7 y 16GB RAM', 999.99, NULL, 1),
+    ('Camiseta', 'Camiseta de algodón talla M', 19.99, NULL, 2),
+    ('Jeans', 'Jeans azules clásicos, talla 32', 49.99, NULL, 2);
+""");
+
+        await db.execute("""
+  INSERT INTO "order" (date, due_date, state_id)
+  VALUES
+    ('2025-04-17', '2025-04-20', 1),
+    ('2025-04-15', '2025-04-16', 1);
+""");
+
+        await db.execute("""
+  INSERT INTO order_detail (order_id, product_id, quantity)
+  VALUES
+    (1, 1, 2),
+    (1, 3, 1),
+    (2, 2, 1),
+    (2, 4, 2);
+""");
       },
       onOpen: (db) async {
         await db.execute('PRAGMA foreign_keys = ON;');
