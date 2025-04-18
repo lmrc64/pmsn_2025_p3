@@ -33,6 +33,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
               title: Text('Products Screen'),
               trailing: Icon(Icons.chevron_right),
             ),
+            ListTile(
+              onTap: () {
+                Navigator.pushNamed(context, "/orders");
+              },
+              leading: Icon(Icons.book),
+              title: Text('Orders Screen'),
+              trailing: Icon(Icons.chevron_right),
+            ),
           ],
         ),
       ),

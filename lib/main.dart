@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pmsn_2025_p3/screens/categories_screen.dart';
 import 'package:pmsn_2025_p3/screens/dashboard_screen.dart';
+import 'package:pmsn_2025_p3/screens/orders_screen.dart';
 import 'package:pmsn_2025_p3/screens/products_screen.dart';
 
 void main() => runApp(const MyApp());
@@ -13,7 +14,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       routes: {
         "/categories": (context) => CategoriesScreen(),
-        "/products": (context) => ProductsScreen()
+        "/products": (context) => ProductsScreen(),
+        "/orders": (context) => OrdersScreen()
       },
       title: 'Material App',
       home: DashboardScreen(),
