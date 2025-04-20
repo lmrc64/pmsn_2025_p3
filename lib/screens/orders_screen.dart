@@ -4,9 +4,11 @@ import 'package:intl/intl.dart';
 import 'package:pmsn_2025_p3/database/sales_database.dart';
 import 'package:pmsn_2025_p3/models/order_model.dart';
 import 'package:pmsn_2025_p3/models/state_model.dart';
+import 'package:pmsn_2025_p3/screens/order_detail_screen.dart';
 
 class OrdersScreen extends StatefulWidget {
-  const OrdersScreen({super.key});
+  final int? stateId;
+  const OrdersScreen({super.key, this.stateId});
 
   @override
   State<OrdersScreen> createState() => _OrdersScreenState();
@@ -31,7 +33,14 @@ class _OrdersScreenState extends State<OrdersScreen> {
       ),
       body: FutureBuilder(
         future: Future.wait([
-          database!.select<OrderModel>('order', OrderModel.fromMap),
+          widget.stateId != null
+              ? database!.selectByColumn<OrderModel>(
+                  'order',
+                  'state_id',
+                  widget.stateId!,
+                  OrderModel.fromMap,
+                )
+              : database!.select<OrderModel>('order', OrderModel.fromMap),
           database!.select<StateModel>('state', StateModel.fromMap),
         ]),
         builder: (context, AsyncSnapshot<List<dynamic>> snapshot) {
@@ -83,6 +92,18 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                   .delete('order', 'order_id', order.orderId!);
                               setState(() {});
                             }
+                          },
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.visibility, color: Colors.grey),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) =>
+                                    OrderDetailScreen(orderId: order.orderId!),
+                              ),
+                            );
                           },
                         ),
                       ],
