@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+//import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:pmsn_2025_p3/database/sales_database.dart';
 import 'package:pmsn_2025_p3/models/order_model.dart';
 import 'package:pmsn_2025_p3/models/state_model.dart';
 
 class DashboardScreen extends StatefulWidget {
-  const DashboardScreen({super.key});
+  final int? stateId;
+  const DashboardScreen({super.key, this.stateId});
 
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
@@ -21,6 +22,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
 
+  int? _selectedStateId;
+
   @override
   void initState() {
     super.initState();
@@ -32,6 +35,27 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Center(child: const Text('Sales App')),
+      ),
+      endDrawer: DropdownButtonFormField<int>(
+        //value: null,
+        hint: Text('Filtrar por estado'),
+        isExpanded: true,
+        items: [
+          DropdownMenuItem(value: null, child: Text('Todas')),
+          DropdownMenuItem(value: 1, child: Text('Por cumplir')),
+          DropdownMenuItem(value: 2, child: Text('Cancelado')),
+          DropdownMenuItem(value: 3, child: Text('Completado'))
+        ],
+        onChanged: (value) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => DashboardScreen(
+                stateId: value,
+              ),
+            ),
+          );
+        },
       ),
       drawer: Drawer(
         child: ListView(
@@ -118,8 +142,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Future<void> _loadOrders() async {
-    final orders =
+    var orders =
         await _database.select<OrderModel>('order', OrderModel.fromMap);
+    if (widget.stateId != null) {
+      orders = await _database.selectByColumn<OrderModel>(
+        'order',
+        'state_id',
+        widget.stateId!,
+        OrderModel.fromMap,
+      );
+    }
     final states =
         await _database.select<StateModel>('state', StateModel.fromMap);
 
