@@ -94,6 +94,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 _selectedDay = selectedDay;
                 _focusedDay = focusedDay;
               });
+              if (_getEventsForDay(selectedDay).isNotEmpty) {
+                _dialogBuilder(context);
+              }
             },
             onFormatChanged: (format) {
               setState(() {
@@ -138,6 +141,33 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  Future<void> _dialogBuilder(BuildContext context) {
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          insetPadding: EdgeInsets.zero, // Quita márgenes
+          child: Scaffold(
+            appBar: AppBar(
+              title: Text('Órdenes del día'),
+              automaticallyImplyLeading: false,
+              actions: [
+                IconButton(
+                  icon: Icon(Icons.close),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ],
+            ),
+            body: ListView(
+              padding: EdgeInsets.all(16),
+              children: _buildOrderListForSelectedDay(),
+            ),
+          ),
+        );
+      },
     );
   }
 
