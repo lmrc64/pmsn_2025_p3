@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:pmsn_2025_p3/screens/cart_screen.dart';
+import 'package:pmsn_2025_p3/screens/categories_screen.dart';
+import 'package:pmsn_2025_p3/screens/categories_user_screen.dart';
+import 'package:short_navigation/short_navigation.dart';
 //import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:pmsn_2025_p3/database/sales_database.dart';
@@ -22,41 +27,44 @@ class _DashboardScreenState extends State<DashboardScreen> {
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
 
+  SalesDatabase? database;
+
   int? _selectedStateId;
 
   @override
   void initState() {
     super.initState();
     _loadOrders();
+    database = SalesDatabase();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Center(child: const Text('Sales App')),
+        title: const Text('Sales App'),
+        centerTitle: true,
       ),
-      endDrawer: DropdownButtonFormField<int>(
-        //value: null,
-        hint: Text('Filtrar por estado'),
-        isExpanded: true,
-        items: [
-          DropdownMenuItem(value: null, child: Text('Todas')),
-          DropdownMenuItem(value: 1, child: Text('Por cumplir')),
-          DropdownMenuItem(value: 2, child: Text('Cancelado')),
-          DropdownMenuItem(value: 3, child: Text('Completado'))
-        ],
-        onChanged: (value) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => DashboardScreen(
-                stateId: value,
-              ),
-            ),
-          );
-        },
-      ),
+      // endDrawer: DropdownButtonFormField<int>(
+      //   hint: Text('Filtrar por estado'),
+      //   isExpanded: true,
+      //   items: [
+      //     DropdownMenuItem(value: null, child: Text('Todas')),
+      //     DropdownMenuItem(value: 1, child: Text('Por cumplir')),
+      //     DropdownMenuItem(value: 2, child: Text('Cancelado')),
+      //     DropdownMenuItem(value: 3, child: Text('Completado'))
+      //   ],
+      //   onChanged: (value) {
+      //     Navigator.pushReplacement(
+      //       context,
+      //       MaterialPageRoute(
+      //         builder: (context) => DashboardScreen(
+      //           stateId: value,
+      //         ),
+      //       ),
+      //     );
+      //   },
+      // ),
       drawer: Drawer(
         child: ListView(
           children: [
@@ -83,6 +91,75 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
       body: Column(
         children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            // crossAxisAlignment: CrossAxisAlignment.start,
+            // mainAxisSize: MainAxisSize.,
+            children: [
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color.fromARGB(255, 211, 211, 209)),
+                onPressed: () {
+                  _orderDialogBuilder(context);
+                },
+                child: Row(
+                  spacing: 5,
+                  children: [
+                    Icon(Icons.add),
+                    Text('Agregar orden'),
+                  ],
+                ),
+              ),
+              Container(
+                height: 60,
+                width: 140,
+                // margin: const EdgeInsets.only(right: 10),
+                padding: const EdgeInsets.all(6.0),
+                decoration: BoxDecoration(
+                    // color: Colors.blue,
+                    borderRadius: BorderRadius.circular(10),
+                    // border: Border.all(color: Colors.blue, width: 1),
+                    border: BorderDirectional(
+                      end: BorderSide(
+                        color: Colors.blue,
+                        width: 2,
+                      ),
+                      bottom: BorderSide(
+                        color: Colors.blue,
+                        width: 2,
+                      ),
+                    )),
+                child: DropdownButtonFormField<int>(
+                  icon: Icon(Icons.filter_list_alt),
+
+                  alignment: Alignment.centerRight,
+                  decoration: InputDecoration(
+                    // labelText: 'Filtrar por estado',
+                    border: InputBorder.none,
+                  ),
+                  // hint: Text('Filtrar por estado'),
+
+                  isExpanded: true,
+                  items: [
+                    DropdownMenuItem(value: null, child: Text('Todas')),
+                    DropdownMenuItem(value: 1, child: Text('Por cumplir')),
+                    DropdownMenuItem(value: 2, child: Text('Cancelado')),
+                    DropdownMenuItem(value: 3, child: Text('Completado'))
+                  ],
+                  onChanged: (value) {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => DashboardScreen(
+                          stateId: value,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
           TableCalendar(
             firstDay: DateTime.utc(2010, 10, 16),
             lastDay: DateTime.utc(2030, 3, 14),
@@ -254,5 +331,110 @@ class _DashboardScreenState extends State<DashboardScreen> {
       orElse: () => StateModel(stateId: 0, state: 'Desconocido'),
     );
     return state.state ?? 'Desconocido';
+  }
+
+  Future<void> _orderDialogBuilder(BuildContext context,
+      [int id = 0, OrderModel? order]) async {
+    TextEditingController conDate =
+        TextEditingController(text: order?.date ?? '');
+    TextEditingController conDueDate =
+        TextEditingController(text: order?.dueDate ?? '');
+    int? selectedStateId = order?.stateId;
+
+    List<StateModel> states = await database!.select<StateModel>(
+      'state',
+      StateModel.fromMap,
+    );
+
+    conDate.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
+
+    await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Nueva Orden'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextFormField(
+              readOnly: true,
+              controller: conDate,
+              decoration: InputDecoration(labelText: 'Fecha de Orden'),
+              onTap: () async {
+                DateTime? datePicked = await showDatePicker(
+                  context: context,
+                  initialDate: DateTime.now(),
+                  firstDate: DateTime(2000),
+                  lastDate: DateTime(2100),
+                );
+
+                if (datePicked != null) {
+                  conDate.text = DateFormat('yyyy-MM-dd').format(datePicked);
+                }
+              },
+            ),
+            TextFormField(
+              readOnly: true,
+              controller: conDueDate,
+              decoration: InputDecoration(labelText: 'Fecha de Entrega'),
+              onTap: () async {
+                DateTime? datePicked = await showDatePicker(
+                  context: context,
+                  initialDate: DateTime.now(),
+                  firstDate: DateTime(2000),
+                  lastDate: DateTime(2100),
+                );
+
+                if (datePicked != null) {
+                  conDueDate.text = DateFormat('yyyy-MM-dd').format(datePicked);
+                }
+              },
+            ),
+            DropdownButtonFormField<int>(
+              value: states.any((s) => s.stateId == selectedStateId)
+                  ? selectedStateId
+                  : null,
+              items: states.map((s) {
+                return DropdownMenuItem<int>(
+                  value: s.stateId,
+                  child: Text(s.state ?? ''),
+                );
+              }).toList(),
+              onChanged: (value) {
+                selectedStateId = value;
+              },
+              decoration: InputDecoration(labelText: 'Estado'),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () async {
+              if (conDate.text.isNotEmpty &&
+                  conDueDate.text.isNotEmpty &&
+                  selectedStateId != null) {
+                final data = {
+                  'date': conDate.text,
+                  'due_date': conDueDate.text,
+                  'state_id': selectedStateId,
+                };
+
+                // if (id == 0) {
+                //   await database!.insert('order', data);
+                // }
+                // Navigator.pop(context);
+                // GoSize.to(CartScreen(dateInit:  conDate.text, dateFinal: conDueDate.text));
+                GoSize.to(CategoriesUserScreen());
+                setState(() {});
+              }
+            },
+            child: Text('Guardar'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Cancelar'),
+          ),
+        ],
+      ),
+    );
   }
 }

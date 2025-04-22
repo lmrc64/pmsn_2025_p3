@@ -1,0 +1,2 @@
+C:/Users/Mines/OneDrive/Documentos/Moviles/pmsn_2025_p3/android/app/.cxx/Debug/y2zv6366/armeabi-v7a/CMakeFiles/edit_cache.dir
+C:/Users/Mines/OneDrive/Documentos/Moviles/pmsn_2025_p3/android/app/.cxx/Debug/y2zv6366/armeabi-v7a/CMakeFiles/rebuild_cache.dir

@@ -25,6 +25,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.2"
+  card_loading:
+    dependency: "direct main"
+    description:
+      name: card_loading
+      sha256: "40cf98405a104ee8151600510033a9e22a3f9ad808e613c0e563ee7bd85a644c"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.3.2"
   characters:
     dependency: transitive
     description:
@@ -134,6 +142,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.27"
+  flutter_slider_drawer:
+    dependency: "direct main"
+    description:
+      name: flutter_slider_drawer
+      sha256: "41a627bc3a87c981ca128c0ec4e0f2135244c8e13a78bf472db4d59a1ed9896f"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.0.2"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -368,6 +384,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.8"
+  short_navigation:
+    dependency: "direct main"
+    description:
+      name: short_navigation
+      sha256: c09e91224dc21dbda375f574ce13ff5c8acae3864ffd0867e4fdeaa2d2dab056
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.2.1"
   simple_gesture_detector:
     dependency: transitive
     description:
