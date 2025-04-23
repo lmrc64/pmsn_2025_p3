@@ -189,9 +189,10 @@ class _CartScreenState extends State<CartScreen> {
           IconButton(
               onPressed: () {
                 // GlobalValues.mountCart.value++;
-                _addDetailDialog(context, product.productId!)
-                    .then((value) => setState(() {}));
-                _showCartBadge = GlobalValues.mountCart.value > 0;
+                _addDetailDialog(context, product.productId!).then((value) {
+                  _showCartBadge = GlobalValues.mountCart.value > 0;
+                  setState(() {});
+                });
               },
               icon: Icon(
                 Icons.add_box_rounded,
@@ -205,7 +206,7 @@ class _CartScreenState extends State<CartScreen> {
 
   Widget _shoppingCartBadge() {
     return badges.Badge(
-      position: badges.BadgePosition.topEnd(top: 0, end: 3),
+      position: badges.BadgePosition.topEnd(top: -3, end: 2),
       badgeAnimation: badges.BadgeAnimation.slide(
           // disappearanceFadeAnimationDuration: Duration(milliseconds: 200),
           // curve: Curves.easeInCubic,
@@ -221,7 +222,12 @@ class _CartScreenState extends State<CartScreen> {
       child: IconButton(
           icon: Icon(Icons.shopping_cart),
           onPressed: () {
-            GoScale.to(OrderDetailUserScreen(orderId: widget.orderId!));
+            GoScale.to(OrderDetailUserScreen(orderId: widget.orderId!)).then(
+              (value) {
+                _showCartBadge = GlobalValues.mountCart.value > 0;
+                setState(() {});
+              },
+            );
           }),
     );
   }

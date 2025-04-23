@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:pmsn_2025_p3/database/sales_database.dart';
 import 'package:pmsn_2025_p3/models/category_model.dart';
 import 'package:pmsn_2025_p3/screens/cart_screen.dart';
+import 'package:pmsn_2025_p3/screens/order_detail_user_screen.dart';
 import 'package:pmsn_2025_p3/utils/global_values.dart';
 
 // import 'package:path/path.dart' as path;
@@ -145,7 +146,7 @@ class _CategoriesUserScreenState extends State<CategoriesUserScreen> {
 
   Widget _shoppingCartBadge() {
     return badges.Badge(
-      position: badges.BadgePosition.topEnd(top: 0, end: 3),
+      position: badges.BadgePosition.topEnd(top: -3, end: 2),
       badgeAnimation: badges.BadgeAnimation.slide(
           // disappearanceFadeAnimationDuration: Duration(milliseconds: 200),
           // curve: Curves.easeInCubic,
@@ -159,7 +160,16 @@ class _CategoriesUserScreenState extends State<CategoriesUserScreen> {
         GlobalValues.mountCart.value.toString(),
         style: TextStyle(color: Colors.white),
       ),
-      child: IconButton(icon: Icon(Icons.shopping_cart), onPressed: () {}),
+      child: IconButton(
+          icon: Icon(Icons.shopping_cart),
+          onPressed: () {
+            GoScale.to(OrderDetailUserScreen(orderId: widget.orderId!)).then(
+              (value) {
+                _showCartBadge = GlobalValues.mountCart.value > 0;
+                setState(() {});
+              },
+            );
+          }),
     );
   }
 

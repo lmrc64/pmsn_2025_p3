@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pmsn_2025_p3/database/sales_database.dart';
 import 'package:pmsn_2025_p3/models/order_detail_model.dart';
 import 'package:pmsn_2025_p3/models/product_model.dart';
+import 'package:pmsn_2025_p3/utils/global_values.dart';
 
 class OrderDetailUserScreen extends StatefulWidget {
   final int orderId;
@@ -77,6 +78,7 @@ class _OrderDetailUserScreenState extends State<OrderDetailUserScreen> {
                             'order_detail_id',
                             detail.orderDetailId!,
                           );
+                          GlobalValues.mountCart.value -= detail.quantity!;
                           setState(() {});
                         },
                       ),

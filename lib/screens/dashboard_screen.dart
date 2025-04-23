@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:pmsn_2025_p3/screens/cart_screen.dart';
 import 'package:pmsn_2025_p3/screens/categories_screen.dart';
 import 'package:pmsn_2025_p3/screens/categories_user_screen.dart';
+import 'package:pmsn_2025_p3/utils/global_values.dart';
 import 'package:short_navigation/short_navigation.dart';
 //import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -424,8 +425,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 // print(lastID);
                 // Navigator.pop(context);
                 // GoSize.to(CartScreen(dateInit:  conDate.text, dateFinal: conDueDate.text));
-                GoSize.to(CategoriesUserScreen(orderId: lastID));
-                setState(() {});
+                GoSize.to(CategoriesUserScreen(orderId: lastID)).then(
+                  (value) {
+                    GlobalValues.mountCart.value = 0;
+                    setState(() {});
+                  },
+                );
               }
             },
             child: Text('Guardar'),
