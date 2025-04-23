@@ -139,6 +139,7 @@ create table order_detail(
   Future<List<T>> selectByColumn<T>(
     String table,
     String column,
+    // DOCUMENTAR PARA LA PROXIMA VEZ
     dynamic value,
     T Function(Map<String, dynamic>) fromMap,
   ) async {

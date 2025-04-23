@@ -44,6 +44,7 @@ dependencies:
   flutter_slider_drawer: ^3.0.2
   short_navigation: ^2.2.1
   card_loading: ^0.3.2
+  badges: ^3.1.2
 
 dev_dependencies:
   flutter_test:

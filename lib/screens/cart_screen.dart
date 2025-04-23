@@ -1,21 +1,27 @@
 import 'dart:io';
 
+import 'package:badges/badges.dart' as badges;
 import 'package:card_loading/card_loading.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slider_drawer/flutter_slider_drawer.dart';
 import 'package:pmsn_2025_p3/database/sales_database.dart';
+import 'package:pmsn_2025_p3/models/order_detail_model.dart';
 import 'package:pmsn_2025_p3/models/product_model.dart';
+import 'package:pmsn_2025_p3/screens/order_detail_user_screen.dart';
+import 'package:pmsn_2025_p3/utils/global_values.dart';
 import 'package:short_navigation/short_navigation.dart';
 
 class CartScreen extends StatefulWidget {
   final String? dateInit;
   final String? dateFinal;
+  final int? orderId;
   final int? categoryId;
   final String? categoryName;
   const CartScreen(
       {Key? key,
       this.categoryName,
       this.categoryId,
+      this.orderId,
       this.dateInit,
       this.dateFinal})
       : super(key: key);
@@ -29,8 +35,9 @@ class _CartScreenState extends State<CartScreen> {
       GlobalKey<SliderDrawerState>();
 
   SalesDatabase? database;
-  // final String date = widget.dateInit;
-  // final String dueDate = widget.dateFinal;
+  // int _cartBadgeAmount = 6;
+  bool _showCartBadge = GlobalValues.mountCart.value > 0;
+  Color color = Colors.red;
 
   @override
   void initState() {
@@ -45,6 +52,21 @@ class _CartScreenState extends State<CartScreen> {
       appBar: AppBar(
         title: Text(widget.categoryName!),
         centerTitle: true,
+        leading: badges.Badge(
+          position: badges.BadgePosition.topEnd(top: 10, end: 10),
+          child: IconButton(
+            icon: Icon(Icons.menu),
+            onPressed: () {},
+          ),
+        ),
+        actions: <Widget>[
+          ValueListenableBuilder(
+            valueListenable: GlobalValues.mountCart,
+            builder: (context, value, child) {
+              return _shoppingCartBadge();
+            },
+          )
+        ],
       ),
       endDrawer: Drawer(
         child: Padding(
@@ -165,7 +187,12 @@ class _CartScreenState extends State<CartScreen> {
           ),
           Text("\$${product.price!}"),
           IconButton(
-              onPressed: () {},
+              onPressed: () {
+                // GlobalValues.mountCart.value++;
+                _addDetailDialog(context, product.productId!)
+                    .then((value) => setState(() {}));
+                _showCartBadge = GlobalValues.mountCart.value > 0;
+              },
               icon: Icon(
                 Icons.add_box_rounded,
                 size: 30,
@@ -175,4 +202,119 @@ class _CartScreenState extends State<CartScreen> {
       ),
     );
   }
+
+  Widget _shoppingCartBadge() {
+    return badges.Badge(
+      position: badges.BadgePosition.topEnd(top: 0, end: 3),
+      badgeAnimation: badges.BadgeAnimation.slide(
+          // disappearanceFadeAnimationDuration: Duration(milliseconds: 200),
+          // curve: Curves.easeInCubic,
+          ),
+      showBadge: _showCartBadge,
+      badgeStyle: badges.BadgeStyle(
+        badgeColor: color,
+      ),
+      badgeContent: Text(
+        GlobalValues.mountCart.value.toString(),
+        style: TextStyle(color: Colors.white),
+      ),
+      child: IconButton(
+          icon: Icon(Icons.shopping_cart),
+          onPressed: () {
+            GoScale.to(OrderDetailUserScreen(orderId: widget.orderId!));
+          }),
+    );
+  }
+
+  Future<void> _addDetailDialog(BuildContext context, int productId,
+      [OrderDetailModel? detail]) async {
+    final quantityCtrl = TextEditingController(
+      text: detail != null ? detail.quantity.toString() : '',
+    );
+
+    // final products = await database!.select<ProductModel>(
+    //   'product',
+    //   ProductModel.fromMap,
+    // );
+
+    // int? selectedProductId = detail?.productId ??
+    //     (products.isNotEmpty ? products.first.productId : null);
+
+    await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(detail == null ? 'Agregar Detalle' : 'Editar Detalle'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // DropdownButtonFormField<int>(
+            //   value: selectedProductId,
+            //   items: products.map((product) {
+            //     return DropdownMenuItem<int>(
+            //       value: product.productId,
+            //       child: Text(product.product!),
+            //     );
+            //   }).toList(),
+            //   onChanged: (value) {
+            //     selectedProductId = value;
+            //   },
+            //   decoration: InputDecoration(labelText: 'Producto'),
+            // ),
+            TextFormField(
+              controller: quantityCtrl,
+              decoration: InputDecoration(labelText: 'Cantidad'),
+              keyboardType: TextInputType.number,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () async {
+              final quantity = int.tryParse(quantityCtrl.text);
+              if (quantity != null) {
+                final data = {
+                  'order_id': widget.orderId,
+                  'product_id': productId,
+                  'quantity': quantity,
+                };
+                if (detail == null) {
+                  await database!.insert('order_detail', data);
+                }
+
+                GlobalValues.mountCart.value += quantity;
+                Navigator.pop(context);
+                // setState(() {});
+              }
+            },
+            child: Text('Guardar'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Cancelar'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Widget _addRemoveCartButtons() {
+  //   return Row(
+  //     // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+  //     children: <Widget>[
+  //       ElevatedButton.icon(
+  //           onPressed: () => GlobalValues.mountCart.value++,
+  //           icon: Icon(Icons.add),
+  //           label: Text('Add to cart')),
+  //       ElevatedButton.icon(
+  //           onPressed: _showCartBadge
+  //               ? () => setState(() {
+  //                     _cartBadgeAmount--;
+  //                     color = Colors.blue;
+  //                   })
+  //               : null,
+  //           icon: Icon(Icons.remove),
+  //           label: Text('Remove from cart')),
+  //     ],
+  //   );
+  // }
 }

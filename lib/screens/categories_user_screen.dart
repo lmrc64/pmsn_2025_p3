@@ -1,17 +1,18 @@
 import 'dart:io';
 
+import 'package:badges/badges.dart' as badges;
 import 'package:flutter/material.dart';
 import 'package:pmsn_2025_p3/database/sales_database.dart';
 import 'package:pmsn_2025_p3/models/category_model.dart';
 import 'package:pmsn_2025_p3/screens/cart_screen.dart';
-import 'package:pmsn_2025_p3/screens/products_screen.dart';
 import 'package:pmsn_2025_p3/utils/global_values.dart';
 
-import 'package:path/path.dart' as path;
+// import 'package:path/path.dart' as path;
 import 'package:short_navigation/short_navigation.dart';
 
 class CategoriesUserScreen extends StatefulWidget {
-  const CategoriesUserScreen({super.key});
+  final int? orderId;
+  const CategoriesUserScreen({super.key, this.orderId});
 
   @override
   State<CategoriesUserScreen> createState() => _CategoriesUserScreenState();
@@ -20,6 +21,10 @@ class CategoriesUserScreen extends StatefulWidget {
 class _CategoriesUserScreenState extends State<CategoriesUserScreen> {
   SalesDatabase? database;
 
+  // int _cartBadgeAmount = GlobalValues.mountCart as int;
+  bool _showCartBadge = GlobalValues.mountCart.value > 0;
+  Color color = Colors.red;
+
   @override
   void initState() {
     super.initState();
@@ -27,38 +32,60 @@ class _CategoriesUserScreenState extends State<CategoriesUserScreen> {
   }
 
   Widget build(BuildContext context) {
+    _showCartBadge = GlobalValues.mountCart.value > 0;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Categories'),
         centerTitle: true,
+        leading: badges.Badge(
+          position: badges.BadgePosition.topEnd(top: 10, end: 10),
+          child: IconButton(
+            icon: Icon(Icons.menu),
+            onPressed: () {},
+          ),
+        ),
+        actions: <Widget>[
+          ValueListenableBuilder(
+            valueListenable: GlobalValues.mountCart,
+            builder: (context, value, child) {
+              return _shoppingCartBadge();
+            },
+          )
+          // ValueListenableBuilder(child: _shoppingCartBadge()),
+        ],
+        // bottom: _tabBar(),
       ),
-      body: FutureBuilder(
-        future:
-            database!.select<CategoryModel>('category', CategoryModel.fromMap),
-        builder: (context, AsyncSnapshot<List<CategoryModel>> snapshot) {
-          if (snapshot.hasError) {
-            return Center(
-              child: Text(snapshot.error.toString()),
-            );
-          } else if (snapshot.hasData) {
-            return GridView.builder(
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                crossAxisSpacing: 10,
-                mainAxisSpacing: 10,
-              ),
-              itemCount: snapshot.data!.length,
-              itemBuilder: (context, index) {
-                final category = snapshot.data![index];
-                return ItemCategory(category);
-              },
-            );
-          } else {
-            return Center(
-              child: CircularProgressIndicator(),
-            );
-          }
-        },
+      body: SizedBox(
+        width: MediaQuery.of(context).size.width,
+        height: MediaQuery.of(context).size.height,
+        child: FutureBuilder(
+          future: database!
+              .select<CategoryModel>('category', CategoryModel.fromMap),
+          builder: (context, AsyncSnapshot<List<CategoryModel>> snapshot) {
+            if (snapshot.hasError) {
+              return Center(
+                child: Text(snapshot.error.toString()),
+              );
+            } else if (snapshot.hasData) {
+              return GridView.builder(
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 10,
+                  mainAxisSpacing: 10,
+                ),
+                itemCount: snapshot.data!.length,
+                itemBuilder: (context, index) {
+                  final category = snapshot.data![index];
+                  return ItemCategory(category);
+                },
+              );
+            } else {
+              return Center(
+                child: CircularProgressIndicator(),
+              );
+            }
+          },
+        ),
       ),
     );
   }
@@ -83,9 +110,16 @@ class _CategoriesUserScreenState extends State<CategoriesUserScreen> {
               //   ),
               // );
               GoFade.to(CartScreen(
+                orderId: widget.orderId,
                 categoryName: category.category!,
                 categoryId: category.categoryId!,
-              ));
+              )).then(
+                (value) {
+                  // GlobalValues.mountCart.value = GlobalValues.mountCart.value;
+                  // _showCartBadge = GlobalValues.mountCart.value > 0;
+                  setState(() {});
+                },
+              );
             },
             child: category.image != null && category.image!.isNotEmpty
                 ? CircleAvatar(
@@ -108,4 +142,50 @@ class _CategoriesUserScreenState extends State<CategoriesUserScreen> {
       ),
     );
   }
+
+  Widget _shoppingCartBadge() {
+    return badges.Badge(
+      position: badges.BadgePosition.topEnd(top: 0, end: 3),
+      badgeAnimation: badges.BadgeAnimation.slide(
+          // disappearanceFadeAnimationDuration: Duration(milliseconds: 200),
+          // curve: Curves.easeInCubic,
+          ),
+      showBadge: _showCartBadge,
+      badgeStyle: badges.BadgeStyle(
+        badgeColor: color,
+      ),
+      badgeContent: Text(
+        // _cartBadgeAmount.toString(),
+        GlobalValues.mountCart.value.toString(),
+        style: TextStyle(color: Colors.white),
+      ),
+      child: IconButton(icon: Icon(Icons.shopping_cart), onPressed: () {}),
+    );
+  }
+
+  // Widget _addRemoveCartButtons() {
+  //   return Row(
+  //     // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+  //     children: <Widget>[
+  //       ElevatedButton.icon(
+  //           onPressed: () => setState(() {
+  //                 _cartBadgeAmount++;
+  //                 if (color == Colors.blue) {
+  //                   color = Colors.red;
+  //                 }
+  //               }),
+  //           icon: Icon(Icons.add),
+  //           label: Text('Add to cart')),
+  //       ElevatedButton.icon(
+  //           onPressed: _showCartBadge
+  //               ? () => setState(() {
+  //                     _cartBadgeAmount--;
+  //                     color = Colors.blue;
+  //                   })
+  //               : null,
+  //           icon: Icon(Icons.remove),
+  //           label: Text('Remove from cart')),
+  //     ],
+  //   );
+  // }
 }

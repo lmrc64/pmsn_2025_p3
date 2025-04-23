@@ -417,13 +417,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   'due_date': conDueDate.text,
                   'state_id': selectedStateId,
                 };
-
-                // if (id == 0) {
-                //   await database!.insert('order', data);
-                // }
+                int? lastID;
+                if (id == 0) {
+                  lastID = await database!.insert('order', data);
+                }
+                // print(lastID);
                 // Navigator.pop(context);
                 // GoSize.to(CartScreen(dateInit:  conDate.text, dateFinal: conDueDate.text));
-                GoSize.to(CategoriesUserScreen());
+                GoSize.to(CategoriesUserScreen(orderId: lastID));
                 setState(() {});
               }
             },
