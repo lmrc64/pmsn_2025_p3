@@ -138,20 +138,47 @@ class _ProductsScreenState extends State<ProductsScreen> {
                   );
 
                   if (confirm?.isTapConfirmButton ?? false) {
-                    await database!.delete(
-                      'product',
-                      'product_id',
-                      product.productId!,
-                    );
-                    setState(() {});
-                    ArtSweetAlert.show(
-                      context: context,
-                      artDialogArgs: ArtDialogArgs(
-                        type: ArtSweetAlertType.success,
-                        title: 'Eliminado',
-                        text: 'Producto eliminado correctamente',
-                      ),
-                    );
+                    try {
+                      await database!.delete(
+                        'product',
+                        'product_id',
+                        product.productId!,
+                      );
+                      setState(() {});
+                      ArtSweetAlert.show(
+                        context: context,
+                        artDialogArgs: ArtDialogArgs(
+                          type: ArtSweetAlertType.success,
+                          title: 'Eliminado',
+                          text: 'Producto eliminado correctamente',
+                        ),
+                      );
+                    } catch (e) {
+                      // Verifica si el error tiene que ver con una foreign key constraint
+                      final errorMessage = e.toString();
+                      if (errorMessage.contains('FOREIGN KEY') ||
+                          errorMessage.contains('foreign key')) {
+                        ArtSweetAlert.show(
+                          context: context,
+                          artDialogArgs: ArtDialogArgs(
+                            type: ArtSweetAlertType.danger,
+                            title: 'No se puede eliminar',
+                            text:
+                                'Este producto está asociado a una orden y no se puede eliminar.',
+                          ),
+                        );
+                      } else {
+                        ArtSweetAlert.show(
+                          context: context,
+                          artDialogArgs: ArtDialogArgs(
+                            type: ArtSweetAlertType.danger,
+                            title: 'Error',
+                            text:
+                                'Ocurrió un error inesperado al eliminar el producto.',
+                          ),
+                        );
+                      }
+                    }
                   }
                 },
               ),

@@ -339,6 +339,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   List<Widget> _buildNoOrders() {
+    _selectedDay ??= DateTime.now();
+
     final selectedDate =
         DateTime(_selectedDay!.year, _selectedDay!.month, _selectedDay!.day);
     final ordersThatDay = _events[selectedDate] ?? [];
