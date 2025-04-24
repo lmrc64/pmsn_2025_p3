@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:pmsn_2025_p3/screens/cart_screen.dart';
 import 'package:pmsn_2025_p3/screens/categories_screen.dart';
 import 'package:pmsn_2025_p3/screens/categories_user_screen.dart';
+import 'package:pmsn_2025_p3/screens/order_detail_screen.dart';
 import 'package:pmsn_2025_p3/utils/global_values.dart';
 import 'package:short_navigation/short_navigation.dart';
 //import 'package:intl/intl.dart';
@@ -214,7 +215,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           const SizedBox(height: 10),
           Expanded(
             child: ListView(
-              children: _buildOrderListForSelectedDay(),
+              children: _buildNoOrders(),
             ),
           ),
         ],
@@ -313,17 +314,45 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
 
     return ordersThatDay.map((order) {
-      // Opcional: puedes obtener el nombre del estado si lo necesitas
-      final stateName =
-          _getStateName(order.stateId!); // crea esta función si quieres
+      final stateName = _getStateName(order.stateId!);
 
       return ListTile(
         leading: Icon(Icons.circle, color: _getDotColor(stateName), size: 12),
         title: Text('Orden #${order.orderId} - Estado: $stateName'),
         subtitle: Text(
-            'Fecha de la orden: ${order.date} \nFecha de entrega: ${order.dueDate}'),
+          'Fecha de la orden: ${order.date} \nFecha de entrega: ${order.dueDate}',
+        ),
+        trailing: IconButton(
+          icon: Icon(Icons.remove_red_eye, color: Colors.grey),
+          tooltip: 'Ver detalles',
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => OrderDetailScreen(orderId: order.orderId!),
+              ),
+            );
+          },
+        ),
       );
     }).toList();
+  }
+
+  List<Widget> _buildNoOrders() {
+    final selectedDate =
+        DateTime(_selectedDay!.year, _selectedDay!.month, _selectedDay!.day);
+    final ordersThatDay = _events[selectedDate] ?? [];
+
+    if (ordersThatDay.isEmpty) {
+      return [
+        ListTile(
+          title: Text('No hay órdenes para este día'),
+          leading: Icon(Icons.info_outline),
+        ),
+      ];
+    }
+
+    return [];
   }
 
   String _getStateName(int stateId) {
