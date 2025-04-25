@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:action_slider/action_slider.dart';
 import 'package:badges/badges.dart' as badges;
 import 'package:card_loading/card_loading.dart';
 import 'package:flutter/material.dart';
@@ -7,6 +8,7 @@ import 'package:flutter_slider_drawer/flutter_slider_drawer.dart';
 import 'package:pmsn_2025_p3/database/sales_database.dart';
 import 'package:pmsn_2025_p3/models/order_detail_model.dart';
 import 'package:pmsn_2025_p3/models/product_model.dart';
+import 'package:pmsn_2025_p3/screens/dashboard_screen.dart';
 import 'package:pmsn_2025_p3/screens/order_detail_user_screen.dart';
 import 'package:pmsn_2025_p3/utils/global_values.dart';
 import 'package:short_navigation/short_navigation.dart';
@@ -97,12 +99,39 @@ class _CartScreenState extends State<CartScreen> {
               child: Text("Ha ocurrido un error"),
             );
           } else if (snapshot.hasData) {
-            return ListView.builder(
-              itemCount: snapshot.data!.length,
-              itemBuilder: (context, index) {
-                final product = snapshot.data![index];
-                return ItemProduct(product);
-              },
+            return Column(
+              children: [
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: snapshot.data!.length,
+                    itemBuilder: (context, index) {
+                      final product = snapshot.data![index];
+                      return ItemProduct(product);
+                    },
+                  ),
+                ),
+                Container(
+                  margin: EdgeInsets.only(bottom: 70),
+                  child: ActionSlider.standard(
+                    sliderBehavior: SliderBehavior.stretch,
+                    width: 300.0,
+                    backgroundColor: Colors.white,
+                    toggleColor: Colors.redAccent,
+                    action: (controller) async {
+                      controller.loading(); //starts loading animation
+                      await Future.delayed(const Duration(seconds: 2));
+                      controller.success(); //starts success animation
+
+                      await Future.delayed(const Duration(seconds: 1));
+                      await database!
+                          .delete('order', 'order_id', widget.orderId!);
+                      Go.toRemoveUntil(DashboardScreen());
+                      // controller.reset(); //resets the slider
+                    },
+                    child: const Text('Cancelar orden'),
+                  ),
+                ),
+              ],
             );
           } else {
             return Column(

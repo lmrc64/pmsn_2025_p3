@@ -1,10 +1,12 @@
 import 'dart:io';
 
+import 'package:action_slider/action_slider.dart';
 import 'package:badges/badges.dart' as badges;
 import 'package:flutter/material.dart';
 import 'package:pmsn_2025_p3/database/sales_database.dart';
 import 'package:pmsn_2025_p3/models/category_model.dart';
 import 'package:pmsn_2025_p3/screens/cart_screen.dart';
+import 'package:pmsn_2025_p3/screens/dashboard_screen.dart';
 import 'package:pmsn_2025_p3/screens/order_detail_user_screen.dart';
 import 'package:pmsn_2025_p3/utils/global_values.dart';
 
@@ -68,17 +70,44 @@ class _CategoriesUserScreenState extends State<CategoriesUserScreen> {
                 child: Text(snapshot.error.toString()),
               );
             } else if (snapshot.hasData) {
-              return GridView.builder(
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 10,
-                  mainAxisSpacing: 10,
-                ),
-                itemCount: snapshot.data!.length,
-                itemBuilder: (context, index) {
-                  final category = snapshot.data![index];
-                  return ItemCategory(category);
-                },
+              return Column(
+                children: [
+                  Expanded(
+                    child: GridView.builder(
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        crossAxisSpacing: 10,
+                        mainAxisSpacing: 10,
+                      ),
+                      itemCount: snapshot.data!.length,
+                      itemBuilder: (context, index) {
+                        final category = snapshot.data![index];
+                        return ItemCategory(category);
+                      },
+                    ),
+                  ),
+                  Container(
+                    margin: EdgeInsets.only(bottom: 70),
+                    child: ActionSlider.standard(
+                      sliderBehavior: SliderBehavior.stretch,
+                      width: 300.0,
+                      backgroundColor: Colors.white,
+                      toggleColor: Colors.redAccent,
+                      action: (controller) async {
+                        controller.loading(); //starts loading animation
+                        await Future.delayed(const Duration(seconds: 2));
+                        controller.success(); //starts success animation
+
+                        await Future.delayed(const Duration(seconds: 1));
+                        await database!
+                            .delete('order', 'order_id', widget.orderId!);
+                        Go.toRemoveUntil(DashboardScreen());
+                        // controller.reset(); //resets the slider
+                      },
+                      child: const Text('Cancelar orden'),
+                    ),
+                  ),
+                ],
               );
             } else {
               return Center(

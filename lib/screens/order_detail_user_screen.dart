@@ -1,8 +1,12 @@
+import 'package:action_slider/action_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:pmsn_2025_p3/database/sales_database.dart';
 import 'package:pmsn_2025_p3/models/order_detail_model.dart';
 import 'package:pmsn_2025_p3/models/product_model.dart';
+import 'package:pmsn_2025_p3/screens/dashboard_screen.dart';
 import 'package:pmsn_2025_p3/utils/global_values.dart';
+import 'package:short_navigation/short_navigation.dart';
+import 'package:sqflite/sqlite_api.dart';
 
 class OrderDetailUserScreen extends StatefulWidget {
   final int orderId;
@@ -90,6 +94,22 @@ class _OrderDetailUserScreenState extends State<OrderDetailUserScreen> {
               return Column(
                 children: [
                   Expanded(child: ListView(children: items)),
+                  ActionSlider.standard(
+                    sliderBehavior: SliderBehavior.stretch,
+                    width: 300.0,
+                    backgroundColor: Colors.white,
+                    toggleColor: Colors.lightGreenAccent,
+                    action: (controller) async {
+                      controller.loading(); //starts loading animation
+                      await Future.delayed(const Duration(seconds: 2));
+                      controller.success(); //starts success animation
+
+                      await Future.delayed(const Duration(seconds: 1));
+                      Go.toRemoveUntil(DashboardScreen());
+                      // controller.reset(); //resets the slider
+                    },
+                    child: const Text('Finalizar pedido'),
+                  ),
                   Divider(),
                   Padding(
                     padding: const EdgeInsets.all(16.0),
