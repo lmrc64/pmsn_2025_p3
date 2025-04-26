@@ -3,9 +3,15 @@ import 'package:pmsn_2025_p3/screens/categories_screen.dart';
 import 'package:pmsn_2025_p3/screens/dashboard_screen.dart';
 import 'package:pmsn_2025_p3/screens/orders_screen.dart';
 import 'package:pmsn_2025_p3/screens/products_screen.dart';
+import 'package:pmsn_2025_p3/utils/notification_service.dart';
 import 'package:short_navigation/short_navigation.dart';
 
-void main() => runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await requestNotificationPermission();
+  await initializeNotifications();
+  runApp(const MyApp());
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});

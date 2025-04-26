@@ -251,7 +251,9 @@ class _CartScreenState extends State<CartScreen> {
       child: IconButton(
           icon: Icon(Icons.shopping_cart),
           onPressed: () {
-            GoScale.to(OrderDetailUserScreen(orderId: widget.orderId!)).then(
+            GoScale.to(OrderDetailUserScreen(
+                    conDueDate: widget.dateFinal, orderId: widget.orderId!))
+                .then(
               (value) {
                 _showCartBadge = GlobalValues.mountCart.value > 0;
                 setState(() {});

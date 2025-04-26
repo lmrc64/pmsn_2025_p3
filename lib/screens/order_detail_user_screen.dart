@@ -1,16 +1,20 @@
 import 'package:action_slider/action_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:pmsn_2025_p3/database/sales_database.dart';
 import 'package:pmsn_2025_p3/models/order_detail_model.dart';
 import 'package:pmsn_2025_p3/models/product_model.dart';
 import 'package:pmsn_2025_p3/screens/dashboard_screen.dart';
 import 'package:pmsn_2025_p3/utils/global_values.dart';
+import 'package:pmsn_2025_p3/utils/notification_service.dart';
 import 'package:short_navigation/short_navigation.dart';
 import 'package:sqflite/sqlite_api.dart';
 
 class OrderDetailUserScreen extends StatefulWidget {
   final int orderId;
-  const OrderDetailUserScreen({super.key, required this.orderId});
+  final String? conDueDate;
+  const OrderDetailUserScreen(
+      {super.key, required this.orderId, this.conDueDate});
 
   @override
   State<OrderDetailUserScreen> createState() => _OrderDetailUserScreenState();
@@ -19,10 +23,45 @@ class OrderDetailUserScreen extends StatefulWidget {
 class _OrderDetailUserScreenState extends State<OrderDetailUserScreen> {
   SalesDatabase? database;
 
+  DateTime? fecha;
+  DateTime? recordatorio2DiasAntes;
+  // DateTime recordatorio2DiasAntes = DateTime(
+  //       fecha!.year,
+  //       fecha!.month,
+  //       fecha!.day - 2,
+  //       DateTime.now().hour,
+  //       DateTime.now().minute + 1,
+  //       DateTime.now().second + 5,
+  //     );
+
+  // if (recordatorio2DiasAntes.isAfter(DateTime.now())) {
+  //   await notificationProgramada(
+  //     recordatorio2DiasAntes,
+  //     tituloController.text.trim(),
+  //     descripcionController.text.trim(),
+  //     clienteController.text.trim(),
+  //     '${fecha?.toLocal().toString().split(' ')[0]}',
+  //   );
+  // }
+
   @override
   void initState() {
     super.initState();
     database = SalesDatabase();
+    database = SalesDatabase();
+    // if (widget.conDueDate != null) {
+    fecha = DateTime.parse(widget.conDueDate!);
+    recordatorio2DiasAntes = DateTime(
+      fecha!.year,
+      fecha!.month,
+      fecha!.day - 2,
+      DateTime.now().hour,
+      DateTime.now().minute + 1,
+      DateTime.now().second + 20,
+    );
+    // }
+    print('Fecha: $fecha');
+    print(recordatorio2DiasAntes);
   }
 
   @override
@@ -105,6 +144,15 @@ class _OrderDetailUserScreenState extends State<OrderDetailUserScreen> {
                       controller.success(); //starts success animation
 
                       await Future.delayed(const Duration(seconds: 1));
+                      if (recordatorio2DiasAntes!.isAfter(DateTime.now())) {
+                        await notificationProgramada(
+                          recordatorio2DiasAntes!,
+                          "Recordatorio de servicio",
+                          "El cliente esta a la espera de su servicio",
+                          "Juan",
+                          '${fecha?.toLocal().toString().split(' ')[0]}',
+                        );
+                      }
                       Go.toRemoveUntil(DashboardScreen());
                       // controller.reset(); //resets the slider
                     },

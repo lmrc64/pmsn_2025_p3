@@ -15,7 +15,8 @@ import 'package:short_navigation/short_navigation.dart';
 
 class CategoriesUserScreen extends StatefulWidget {
   final int? orderId;
-  const CategoriesUserScreen({super.key, this.orderId});
+  final String? conDueDate;
+  const CategoriesUserScreen({super.key, this.orderId, this.conDueDate});
 
   @override
   State<CategoriesUserScreen> createState() => _CategoriesUserScreenState();
@@ -32,6 +33,7 @@ class _CategoriesUserScreenState extends State<CategoriesUserScreen> {
   void initState() {
     super.initState();
     database = SalesDatabase();
+    print(widget.conDueDate);
   }
 
   Widget build(BuildContext context) {
@@ -143,6 +145,7 @@ class _CategoriesUserScreenState extends State<CategoriesUserScreen> {
                 orderId: widget.orderId,
                 categoryName: category.category!,
                 categoryId: category.categoryId!,
+                dateFinal: widget.conDueDate,
               )).then(
                 (value) {
                   // GlobalValues.mountCart.value = GlobalValues.mountCart.value;
@@ -192,7 +195,9 @@ class _CategoriesUserScreenState extends State<CategoriesUserScreen> {
       child: IconButton(
           icon: Icon(Icons.shopping_cart),
           onPressed: () {
-            GoScale.to(OrderDetailUserScreen(orderId: widget.orderId!)).then(
+            GoScale.to(OrderDetailUserScreen(
+                    conDueDate: widget.conDueDate, orderId: widget.orderId!))
+                .then(
               (value) {
                 _showCartBadge = GlobalValues.mountCart.value > 0;
                 setState(() {});

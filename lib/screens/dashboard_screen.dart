@@ -456,7 +456,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 // print(lastID);
                 // Navigator.pop(context);
                 // GoSize.to(CartScreen(dateInit:  conDate.text, dateFinal: conDueDate.text));
-                GoSize.to(CategoriesUserScreen(orderId: lastID)).then(
+                GoSize.to(CategoriesUserScreen(
+                        conDueDate: conDueDate.text, orderId: lastID))
+                    .then(
                   (value) {
                     GlobalValues.mountCart.value = 0;
                     setState(() {});
