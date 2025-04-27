@@ -94,6 +94,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
       body: Column(
         children: [
+          /*
           ElevatedButton(
             style: ElevatedButton.styleFrom(
                 backgroundColor: const Color.fromARGB(255, 211, 211, 209)),
@@ -108,6 +109,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ],
             ),
           ),
+          */
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             // crossAxisAlignment: CrossAxisAlignment.start,

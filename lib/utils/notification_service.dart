@@ -48,10 +48,7 @@ Future<void> showNotification() async {
 
 Future<void> notificationProgramada(
   DateTime fechaHora,
-  String titulo,
-  String mensaje,
-  String nombreCliente,
-  String fechaServicio,
+  String dueDate,
 ) async {
   // print("desde notificacion programada");
   // print(fechaHora);
@@ -60,25 +57,27 @@ Future<void> notificationProgramada(
   final BigTextStyleInformation bigTextStyleInformation =
       BigTextStyleInformation(
     '''
-        <b>El servicio para:  $nombreCliente</b>,<br><br>
-        con descripción: $mensaje<br><br>
-        <i>Se vence el:</i> <b>$fechaServicio</b><br><br>        ''',
+        <p>
+        Usted tiene una orden para el día: <b>$dueDate</b> <br>
+        Recuerde revisar el estado de la orden
+        </p>      
+    ''',
     htmlFormatBigText: true,
-    contentTitle: '<b>$titulo</b>',
+    contentTitle: '<b>Recordatorio de Orden</b>',
     htmlFormatContentTitle: true,
-    summaryText: 'Recordatorio de servicio',
+    summaryText: 'Recordatorio de Orden',
     htmlFormatSummaryText: true,
   );
   await flutterLocalNotificationsPlugin.zonedSchedule(
     DateTime.now().second * DateTime.now().millisecond,
-    titulo,
-    "Fecha Servicio: $fechaServicio",
+    "Recordatorio de Orden",
+    "Fecha Orden: <b>$dueDate</b>",
     tz.TZDateTime.from(fechaHora, tz.local),
     NotificationDetails(
       android: AndroidNotificationDetails(
         '10',
         'Adrian',
-        channelDescription: 'NI la menor idea',
+        channelDescription: 'NPI',
         styleInformation: bigTextStyleInformation,
         importance: Importance.max,
         priority: Priority.high,

@@ -149,9 +149,6 @@ class _OrderDetailUserScreenState extends State<OrderDetailUserScreen> {
                         try {
                           await notificationProgramada(
                             recordatorio2DiasAntes!,
-                            "Recordatorio de servicio",
-                            "El cliente esta a la espera de su servicio",
-                            "Juan",
                             '${fecha?.toLocal().toString().split(' ')[0]}',
                           );
                           print(
@@ -160,6 +157,7 @@ class _OrderDetailUserScreenState extends State<OrderDetailUserScreen> {
                           print("Error al programar la notificacion: $e");
                         }
                       }
+                      GlobalValues.mountCart.value = 0;
                       Go.toRemoveUntil(DashboardScreen());
                       // controller.reset(); //resets the slider
                     },
