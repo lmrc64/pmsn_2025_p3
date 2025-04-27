@@ -9,21 +9,9 @@ final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
 
 Future<void> initializeNotifications() async {
   tz.initializeTimeZones();
-  tz.setLocalLocation(tz.getLocation('America/Tijuana'));
+  tz.setLocalLocation(tz.getLocation('America/Monterrey'));
   const AndroidInitializationSettings initializationSettingsAndroid =
       AndroidInitializationSettings('ic_launcher');
-
-  if (defaultTargetPlatform == TargetPlatform.android) {
-    // Solo para Android
-    final status = await Permission.scheduleExactAlarm.request();
-    if (status != PermissionStatus.granted) {
-      // El usuario no concedió el permiso.  Manejar el error apropiadamente.
-      print('Permiso SCHEDULE_EXACT_ALARM no concedido.');
-      // Puedes mostrar un diálogo al usuario explicando por qué necesitas el permiso,
-      // o puedes deshabilitar la funcionalidad de notificaciones programadas.
-      return; // ¡IMPORTANTE!  No continúes si el permiso no se concede.
-    }
-  }
 
   const InitializationSettings initializationSettings = InitializationSettings(
     android: initializationSettingsAndroid,
@@ -41,8 +29,8 @@ Future<void> requestNotificationPermission() async {
 Future<void> showNotification() async {
   const AndroidNotificationDetails androidPlatformChannelSpecifics =
       AndroidNotificationDetails(
-    'yourchannelid',
-    'yourchannelname',
+    'Hola',
+    'Mira esto',
     importance: Importance.max,
   );
 
@@ -51,7 +39,7 @@ Future<void> showNotification() async {
   );
 
   await flutterLocalNotificationsPlugin.show(
-    0,
+    1,
     'Hello, World!',
     'This is a notification message.',
     platformChannelSpecifics,
@@ -65,6 +53,10 @@ Future<void> notificationProgramada(
   String nombreCliente,
   String fechaServicio,
 ) async {
+  // print("desde notificacion programada");
+  // print(fechaHora);
+  // print(tz.local);
+  print(tz.TZDateTime.from(fechaHora, tz.local));
   final BigTextStyleInformation bigTextStyleInformation =
       BigTextStyleInformation(
     '''
@@ -78,15 +70,15 @@ Future<void> notificationProgramada(
     htmlFormatSummaryText: true,
   );
   await flutterLocalNotificationsPlugin.zonedSchedule(
-    0,
+    DateTime.now().second * DateTime.now().millisecond,
     titulo,
     "Fecha Servicio: $fechaServicio",
     tz.TZDateTime.from(fechaHora, tz.local),
     NotificationDetails(
       android: AndroidNotificationDetails(
-        'your channel id',
-        'your channel name',
-        channelDescription: 'your channel description',
+        '10',
+        'Adrian',
+        channelDescription: 'NI la menor idea',
         styleInformation: bigTextStyleInformation,
         importance: Importance.max,
         priority: Priority.high,

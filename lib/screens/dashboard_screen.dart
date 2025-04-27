@@ -5,6 +5,7 @@ import 'package:pmsn_2025_p3/screens/categories_screen.dart';
 import 'package:pmsn_2025_p3/screens/categories_user_screen.dart';
 import 'package:pmsn_2025_p3/screens/order_detail_screen.dart';
 import 'package:pmsn_2025_p3/utils/global_values.dart';
+import 'package:pmsn_2025_p3/utils/notification_service.dart';
 import 'package:short_navigation/short_navigation.dart';
 //import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -93,6 +94,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
       body: Column(
         children: [
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+                backgroundColor: const Color.fromARGB(255, 211, 211, 209)),
+            onPressed: () {
+              showNotification();
+            },
+            child: Row(
+              spacing: 5,
+              children: [
+                Icon(Icons.add),
+                Text('Mostrar notificación'),
+              ],
+            ),
+          ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             // crossAxisAlignment: CrossAxisAlignment.start,

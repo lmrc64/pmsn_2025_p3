@@ -56,12 +56,12 @@ class _OrderDetailUserScreenState extends State<OrderDetailUserScreen> {
       fecha!.month,
       fecha!.day - 2,
       DateTime.now().hour,
-      DateTime.now().minute + 1,
-      DateTime.now().second + 20,
+      DateTime.now().minute,
+      DateTime.now().second + 40,
     );
     // }
-    print('Fecha: $fecha');
-    print(recordatorio2DiasAntes);
+    // print('Fecha: $fecha');
+    // print(recordatorio2DiasAntes);
   }
 
   @override
@@ -144,14 +144,21 @@ class _OrderDetailUserScreenState extends State<OrderDetailUserScreen> {
                       controller.success(); //starts success animation
 
                       await Future.delayed(const Duration(seconds: 1));
+                      // final formattedDate = DateFormat('yyyy-MM-dd').format(fecha!);
                       if (recordatorio2DiasAntes!.isAfter(DateTime.now())) {
-                        await notificationProgramada(
-                          recordatorio2DiasAntes!,
-                          "Recordatorio de servicio",
-                          "El cliente esta a la espera de su servicio",
-                          "Juan",
-                          '${fecha?.toLocal().toString().split(' ')[0]}',
-                        );
+                        try {
+                          await notificationProgramada(
+                            recordatorio2DiasAntes!,
+                            "Recordatorio de servicio",
+                            "El cliente esta a la espera de su servicio",
+                            "Juan",
+                            '${fecha?.toLocal().toString().split(' ')[0]}',
+                          );
+                          print(
+                              'Notificación programada para: $recordatorio2DiasAntes');
+                        } catch (e) {
+                          print("Error al programar la notificacion: $e");
+                        }
                       }
                       Go.toRemoveUntil(DashboardScreen());
                       // controller.reset(); //resets the slider
